@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import Carousel from './Carousel';
-import {faPlay, FaInfoCircle, FaPlay} from 'react-icons/fa'
+import { FaInfoCircle, FaPlay} from 'react-icons/fa'
 import Footer from '../LandingComponents/Footer';
+import Youtube from 'react-youtube'
+import movieTrailer from 'movie-trailer'
+
+
 
 const key = '731ae29297ab2bf2748d00850a3b087c';
 const requests = {
@@ -19,6 +23,7 @@ const Banner = () => {
     const [movies, setMovies] = useState([])
     const movie = movies[Math.floor(Math.random() * movies.length)];
 
+    const [trailerUrl, setTrailerUrl] = useState("")
     useEffect(()=>{
       axios.get(requests.requestPopular)
       .then((response)=>{
@@ -27,6 +32,29 @@ const Banner = () => {
     },[])
   console.log(movie);
   
+  const handleClick = (movie) =>{
+    if (trailerUrl){
+      setTrailerUrl("")
+    }else{
+      movieTrailer(movie?.name)
+      .then((url) => {
+        const urlParams = new  URLSearchParams(new URL(url).search)
+        setTrailerUrl(urlParams.get("v"))
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    }
+  }
+
+
+  const opts ={
+    height:"390",
+    width: "100%",
+    playerVars:{
+      autolay:1,
+    }
+  }
   return (
     <div className='w-full h-full text-white text-left'>
       <div className='-mt-[5%]  w-full h-full'>
@@ -54,6 +82,7 @@ const Banner = () => {
             </button>
           </div>
             <br/>     <br/>     <br/>     <br/>     <br/> <br/> <br/>
+            {trailerUrl && <Youtube videoId={trailerUrl} opts={opts}/>}
           <Carousel rowId='1' title = 'Popular' fetchURL={requests.requestPopular}/>
           <Carousel rowId='2' title = 'Upcoming' fetchURL={requests.requestUpcoming} />
           <Carousel rowId='3' title = 'Top Rated' fetchURL={requests.requestTopRated} />
